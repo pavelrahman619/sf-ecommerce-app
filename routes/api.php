@@ -14,6 +14,13 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+use App\Http\Controllers\SharedLoginController; // Added import
+
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+// Endpoint to generate a token for shared login
+Route::post('/shared-login/generate-token', [SharedLoginController::class, 'generateToken'])
+    // ->middleware('auth:web')
+    ; // Requires user to be logged in via web session

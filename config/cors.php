@@ -15,20 +15,26 @@ return [
     |
     */
 
-    'paths' => ['api/*', 'sanctum/csrf-cookie'],
+    'paths' => ['api/*', 'sanctum/csrf-cookie', '/shared-login/*'], // Added /shared-login/*
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['*'],
+    // It's recommended to be specific with origins in production.
+    // Use environment variables to define these for flexibility.
+    'allowed_origins' => [
+        // env('FRONTEND_URL', 'http://localhost:3000'), // Example for a SPA frontend
+        env('FOODPANDA_APP_URL', 'http://sf-foodpanda-app.test'), // Allow foodpanda-app
+        env('ECOMMERCE_APP_URL', 'http://sf-ecommerce-app.test'), // Allow self for SPA-like behavior if any
+    ],
 
     'allowed_origins_patterns' => [],
 
-    'allowed_headers' => ['*'],
+    'allowed_headers' => ['*'], // Consider being more specific, e.g., ['Content-Type', 'X-Requested-With', 'Authorization']
 
     'exposed_headers' => [],
 
     'max_age' => 0,
 
-    'supports_credentials' => false,
+    'supports_credentials' => true, // Required for Sanctum cookie-based auth & cross-domain requests
 
 ];

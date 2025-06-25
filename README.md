@@ -1,66 +1,106 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Laravel Sanctum Shared Login: ecommerce-app to foodpanda-app
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## 1. Project Purpose
 
-## About Laravel
+To implement a token-based shared login system where a user authenticated in `ecommerce-app` can seamlessly log into `foodpanda-app`. `ecommerce-app` generates a one-time Sanctum token, embedded in an auto-login URL for `foodpanda-app`.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 2. Setup & Credentials
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+**General Setup (for both `ecommerce-app` and `foodpanda-app`):**
+1.  Clone the repository containing both app folders.
+2.  For each app:
+    *   Navigate into the app's directory.
+    *   Copy `.env.example` to `.env`.
+    *   Run `composer install`.
+    *   Run `php artisan key:generate`.
+    *   Configure your primary database settings in `.env` (e.g., `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`).
+    *   Run `php artisan migrate` to create necessary tables (including `users`, `personal_access_tokens`).
+    *   Ensure `APP_URL` in `.env` is set to the correct URL the app is served from (e.g., `http://sf-ecommerce-app.test`).
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+**Specific `.env` Variables for Shared Login:**
 
-## Learning Laravel
+*   **In `ecommerce-app/.env`:**
+    ```dotenv
+    FOODPANDA_APP_URL=http://sf-foodpanda-app.test # URL of your foodpanda-app
+    ```
+*   **In `foodpanda-app/.env`:**
+    ```dotenv
+    ECOMMERCE_APP_URL=http://sf-ecommerce-app.test # URL of your ecommerce-app (for CORS)
+    ```
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+**Database Strategy & Credentials for Token Validation by `foodpanda-app`:**
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+This implementation assumes `foodpanda-app` needs to read tokens created by `ecommerce-app`.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+*   **If Using a Single Shared Database for Both Apps:**
+    *   Both apps' `.env` files point `DB_DATABASE`, `DB_USERNAME`, etc., to the *same* database instance.
+    *   No further DB credential setup is needed in `foodpanda-app` for token reading.
+    *   `foodpanda-app` will use `Laravel\Sanctum\PersonalAccessToken` directly.
 
-## Laravel Sponsors
+*   **If Using Separate Databases (Read-Access Shortcut Method):**
+    *   `foodpanda-app` needs to connect to `ecommerce-app`'s database to read tokens.
+    *   **In `foodpanda-app/.env`, add these:**
+        ```dotenv
+        ECOMMERCE_DB_HOST=127.0.0.1       # Host of ecommerce-app's database
+        ECOMMERCE_DB_PORT=3306            # Port of ecommerce-app's database
+        ECOMMERCE_DB_DATABASE=your_ecommerce_app_db_name
+        ECOMMERCE_DB_USERNAME_READONLY=your_readonly_db_user_for_ecommerce
+        ECOMMERCE_DB_PASSWORD_READONLY=password_for_readonly_user
+        ```
+    *   Ensure the `ECOMMERCE_DB_USERNAME_READONLY` user has `SELECT` permission on `ecommerce-app`'s `personal_access_tokens` and `users` tables.
+    *   `foodpanda-app` should have an `App\Models\EcommerceAppToken` model that extends Sanctum's `PersonalAccessToken` and sets `protected $connection = 'ecommerce_db_connection';` (assuming `ecommerce_db_connection` is defined in `config/database.php` pointing to these `.env` vars).
+    *   The `AttemptLoginViaSharedToken` middleware in `foodpanda-app` must then use `use App\Models\EcommerceAppToken as PersonalAccessToken;`.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+**User Matching:** Users are matched between `ecommerce-app` and `foodpanda-app` based on **email address**.
 
-### Premium Partners
+## 3. How to Use Postman to Check the Task
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+**Goal:** Generate a token from `ecommerce-app` and get an auto-login URL for `foodpanda-app`.
 
-## Contributing
+1.  **Ensure Prerequisites:**
+    *   Both Laravel apps are running.
+    *   You have a test user in `ecommerce-app` and a corresponding user (same email) in `foodpanda-app`.
+2.  **Clear Postman Cookies for `ecommerce-app` Domain:** (e.g., `sf-ecommerce-app.test`)
+    *   In Postman: Cookies (under Send button) > Manage Cookies > Remove existing for the domain.
+3.  **Step A: (Postman) GET Login Page from `ecommerce-app` (to get CSRF Token)**
+    *   **Method:** `GET`
+    *   **URL:** `http://sf-ecommerce-app.test/login` (Use your actual URL)
+    *   **Headers:** `Accept: text/html`
+    *   **Action:** Send. From the HTML response body, find and copy the `_token` value (CSRF token) from the hidden input field.
+4.  **Step B: (Postman) POST to Login Route of `ecommerce-app` (to establish session)**
+    *   **Method:** `POST`
+    *   **URL:** `http://sf-ecommerce-app.test/login`
+    *   **Headers:**
+        *   `Accept: application/json`
+        *   `Content-Type: application/x-www-form-urlencoded`
+    *   **Body (`x-www-form-urlencoded` tab):**
+        *   `_token`: [CSRF token from Step A]
+        *   `email`: your_test_user@example.com
+        *   `password`: your_password
+    *   **Action:** Send. Verify successful login (Postman should now have the session cookie for `sf-ecommerce-app.test`).
+5.  **Step C: (Postman) POST to Generate Shared Login Token**
+    *   **Method:** `POST`
+    *   **URL:** `http://sf-ecommerce-app.test/api/shared-login/generate-token`
+    *   **Headers:**
+        *   `Accept: application/json`
+        *   `X-Requested-With: XMLHttpRequest`
+        *   **Important:** DO NOT manually add a `Cookie` header. Postman will use the session cookie from Step B.
+    *   **Body:** None.
+    *   **Action:** Send.
+    *   **Expected JSON Response:**
+        ```json
+        {
+            "message": "Token generated successfully.",
+            "access_token": "SOME_TOKEN_STRING",
+            "token_type": "Bearer",
+            "auto_login_url": "http://sf-foodpanda-app.test/auto-login?token=SOME_TOKEN_STRING",
+            "user": { "id": ..., "name": "...", "email": "..." }
+        }
+        ```
+6.  **Test Auto-Login:**
+    *   Copy the `auto_login_url` from the Postman response.
+    *   Paste it into your web browser.
+    *   You should be redirected to `foodpanda-app` and logged in as the test user.
+    *   The token is one-time use; trying the URL again should fail.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+**Note on Authentication Bypass:** If you temporarily disabled authentication in `ecommerce-app`'s `SharedLoginController` or its route for testing, ensure it's re-enabled for proper functionality.
