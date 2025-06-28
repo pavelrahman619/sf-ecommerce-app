@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\SaleController;
 
 /*
 |--------------------------------------------------------------------------
@@ -29,5 +31,13 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::get('/shared-logout', [App\Http\Controllers\SharedLogoutController::class, 'handleSharedLogout'])->name('shared.logout.ecommerce');
+
+
+Route::resource('products', ProductController::class);
+
+Route::get('/sales/create', [SaleController::class, 'create'])->name('sales.create');
+Route::post('/sales', [SaleController::class, 'store'])->name('sales.store');
+
+
 
 require __DIR__.'/auth.php';
