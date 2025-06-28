@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\SaleController;
+use App\Http\Controllers\ReportController;
 
 /*
 |--------------------------------------------------------------------------
@@ -37,6 +38,9 @@ Route::resource('products', ProductController::class);
 
 Route::get('/sales/create', [SaleController::class, 'create'])->name('sales.create');
 Route::post('/sales', [SaleController::class, 'store'])->name('sales.store');
+
+Route::get('/report', [ReportController::class, 'index'])->name('report.index');
+
 
 
 
