@@ -28,4 +28,6 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+Route::get('/shared-logout', [App\Http\Controllers\SharedLogoutController::class, 'handleSharedLogout'])->name('shared.logout.ecommerce');
+
 require __DIR__.'/auth.php';

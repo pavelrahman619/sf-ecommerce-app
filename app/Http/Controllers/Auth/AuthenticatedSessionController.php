@@ -43,6 +43,12 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerateToken();
 
-        return redirect('/');
+        $foodpandaAppUrl = rtrim(env('FOODPANDA_APP_URL', 'http://foodpanda.localhost'), '/');
+        // The final URL the user should land on after all logouts are complete.
+        $finalRedirectUrl = route('login'); 
+        
+        $logoutChainUrl = $foodpandaAppUrl . '/shared-logout?redirect_url=' . urlencode($finalRedirectUrl);
+
+        return redirect()->away($logoutChainUrl);
     }
 }
