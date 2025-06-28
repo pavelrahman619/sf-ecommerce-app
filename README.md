@@ -53,54 +53,29 @@ This implementation assumes `foodpanda-app` needs to read tokens created by `eco
 
 **User Matching:** Users are matched between `ecommerce-app` and `foodpanda-app` based on **email address**.
 
-## 3. How to Use Postman to Check the Task
+## 3. How to Use Multi Login System
 
-**Goal:** Generate a token from `ecommerce-app` and get an auto-login URL for `foodpanda-app`.
+- Log into ecommerce-app using your browser.
+- Navigate to the dashboard.
+- Click the "Go to Foodpanda App" button.
+- Observe the browser redirect to foodpanda-app and the automatic login.
 
-1.  **Ensure Prerequisites:**
-    *   Both Laravel apps are running.
-    *   You have a test user in `ecommerce-app` and a corresponding user (same email) in `foodpanda-app`.
-2.  **Clear Postman Cookies for `ecommerce-app` Domain:** (e.g., `sf-ecommerce-app.test`)
-    *   In Postman: Cookies (under Send button) > Manage Cookies > Remove existing for the domain.
-3.  **Step A: (Postman) GET Login Page from `ecommerce-app` (to get CSRF Token)**
-    *   **Method:** `GET`
-    *   **URL:** `http://sf-ecommerce-app.test/login` (Use your actual URL)
-    *   **Headers:** `Accept: text/html`
-    *   **Action:** Send. From the HTML response body, find and copy the `_token` value (CSRF token) from the hidden input field.
-4.  **Step B: (Postman) POST to Login Route of `ecommerce-app` (to establish session)**
-    *   **Method:** `POST`
-    *   **URL:** `http://sf-ecommerce-app.test/login`
-    *   **Headers:**
-        *   `Accept: application/json`
-        *   `Content-Type: application/x-www-form-urlencoded`
-    *   **Body (`x-www-form-urlencoded` tab):**
-        *   `_token`: [CSRF token from Step A]
-        *   `email`: your_test_user@example.com
-        *   `password`: your_password
-    *   **Action:** Send. Verify successful login (Postman should now have the session cookie for `sf-ecommerce-app.test`).
-5.  **Step C: (Postman) POST to Generate Shared Login Token**
-    *   **Method:** `POST`
-    *   **URL:** `http://sf-ecommerce-app.test/api/shared-login/generate-token`
-    *   **Headers:**
-        *   `Accept: application/json`
-        *   `X-Requested-With: XMLHttpRequest`
-        *   **Important:** DO NOT manually add a `Cookie` header. Postman will use the session cookie from Step B.
-    *   **Body:** None.
-    *   **Action:** Send.
-    *   **Expected JSON Response:**
-        ```json
-        {
-            "message": "Token generated successfully.",
-            "access_token": "SOME_TOKEN_STRING",
-            "token_type": "Bearer",
-            "auto_login_url": "http://sf-foodpanda-app.test/auto-login?token=SOME_TOKEN_STRING",
-            "user": { "id": ..., "name": "...", "email": "..." }
-        }
-        ```
-6.  **Test Auto-Login:**
-    *   Copy the `auto_login_url` from the Postman response.
-    *   Paste it into your web browser.
-    *   You should be redirected to `foodpanda-app` and logged in as the test user.
-    *   The token is one-time use; trying the URL again should fail.
+## 4. Multi-App Logout Functionality
 
-**Note on Authentication Bypass:** If you temporarily disabled authentication in `ecommerce-app`'s `SharedLoginController` or its route for testing, ensure it's re-enabled for proper functionality.
+This implementation includes a coordinated logout mechanism. When a user logs out from either `ecommerce-app` or `foodpanda-app`, they will be logged out from both systems.
+
+**Logout Flow:**
+
+*   **If Logout is Initiated from `ecommerce-app`:**
+    1.  `ecommerce-app` terminates its local user session.
+    2.  The browser is redirected to `foodpanda-app`'s `/shared-logout` endpoint, passing along a `redirect_url` parameter that points back to `ecommerce-app`'s login page.
+    3.  `foodpanda-app`'s `/shared-logout` endpoint terminates its local user session.
+    4.  `foodpanda-app` then redirects the browser to the `redirect_url` (i.e., `ecommerce-app`'s login page).
+
+*   **If Logout is Initiated from `foodpanda-app`:**
+    1.  `foodpanda-app` terminates its local user session.
+    2.  The browser is redirected to `ecommerce-app`'s `/shared-logout` endpoint.
+    3.  `ecommerce-app`'s `/shared-logout` endpoint ensures its local user session is terminated (if not already).
+    4.  `ecommerce-app` then redirects the browser to its own login page.
+
+In both scenarios, the user is ultimately redirected to `ecommerce-app`'s login page after being logged out from both applications.
