@@ -79,3 +79,21 @@ This implementation includes a coordinated logout mechanism. When a user logs ou
     4.  `ecommerce-app` then redirects the browser to its own login page.
 
 In both scenarios, the user is ultimately redirected to `ecommerce-app`'s login page after being logged out from both applications.
+
+## Screenshots
+
+![image](https://github.com/user-attachments/assets/5504aa94-ecdb-4a18-98c3-43c5b761c57f)
+
+![image](https://github.com/user-attachments/assets/34c044d3-e8ce-4b60-bfcf-6a230360f3fd)
+
+![image](https://github.com/user-attachments/assets/0e4e3ce9-6360-4e5b-815c-18b365d556a4)
+
+![image](https://github.com/user-attachments/assets/15d7fe7b-093e-49a2-98e4-9ada5e0a7266)
+
+![image](https://github.com/user-attachments/assets/b164b091-482d-482a-ba28-ce8e3cb06e10)
+
+
+
+
+
+
