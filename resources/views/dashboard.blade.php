@@ -14,7 +14,7 @@
                     </div>
 
                     <div class="border-t pt-6 space-y-3">
-                        <h3 class="text-lg font-medium text-gray-900">Shared Login (Task 1)</h3>
+                        <h3 class="text-lg font-medium text-gray-900">Shared Login</h3>
                         <p class="text-sm text-gray-600">Click the button below to seamlessly log into the Foodpanda App.
                         </p>
                         <button id="goToFoodpandaBtn"
@@ -24,7 +24,7 @@
                     </div>
 
                     <div class="border-t pt-6">
-                        <h3 class="text-lg font-medium text-gray-900 mb-4">Navigate the tasks (Task 2)  </h3>
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">Navigate the features</h3>
                         <div class="flex flex-wrap gap-4">
                             <a href="{{ route('products.index') }}"
                                 class="text-blue-600 hover:text-blue-800 font-semibold transition">Products</a>
