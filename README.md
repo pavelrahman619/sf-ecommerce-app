@@ -8,6 +8,14 @@ A single Laravel application (**ecommerce-app**) serving dual roles:
 
 ---
 
+## 🚀 Live Demo Links
+| App            | Link                                              | Test Credentials                                  |
+|----------------|---------------------------------------------------|--------------------------------------------------|
+| Ecommerce App  | [Ecommerce App](https://sf-ecommerce-app-main-nxuy9j.laravel.cloud/) | Email: admin@gmail.com  <br> Pass: 12345678         |
+| Foodpanda App  | [Foodpanda App](https://sf-foodpanda-app-main-ivwd7d.laravel.cloud/) | Same (auto-login tested)                          |
+
+---
+
 ## 📌 Project Purpose
 
 This project demonstrates:
@@ -106,3 +114,11 @@ ECOMMERCE_DB_*=...
 ![image](https://github.com/user-attachments/assets/15d7fe7b-093e-49a2-98e4-9ada5e0a7266)
 
 ![image](https://github.com/user-attachments/assets/b164b091-482d-482a-ba28-ce8e3cb06e10)
+
+
+
+🚀 Live Demo Links
+App	Link	Test Credentials
+Ecommerce App	https://ecommerce-app.onrender.com	Email: test@demo.com <br> Pass: password
+Foodpanda App	https://foodpanda-app.onrender.com	Same (auto-login tested)
+ERP App	https://erp-app.onrender.com	Email: admin@erp.com <br> Pass: password
