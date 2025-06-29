@@ -23,7 +23,7 @@ class SharedLoginController extends Controller
 
         // FOR TESTING: Fetch a specific user or the first user.
         // Make sure you have at least one user in your ecommerce-app users table.
-        $user = User::where('email', 'pavelx16@gmail.com')->first();
+        $user = User::where('email', 'admin@gmail.com')->first();
 
         if (!$user) {
             Log::error('SharedLoginController: Test user not found for token generation bypass.');
